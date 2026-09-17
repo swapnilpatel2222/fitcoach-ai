@@ -36,4 +36,5 @@ app.post("/generate", async (req, res) => {
   }
 });
 
-app.listen(5000, () => console.log("Backend FIXED running on 5000!"));
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, '0.0.0.0', () => console.log(`Backend FIXED running on ${PORT}!`));
