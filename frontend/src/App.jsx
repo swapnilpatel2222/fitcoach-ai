@@ -32,7 +32,7 @@ export default function App(){
     <div style={S.page}>
       <div style={S.nav}>
         <b>FITCOACH<span style={{color:"#facc15"}}>.AI</span> <span style={{background:"#facc15",color:"black",fontSize:"9px",padding:"3px 7px",borderRadius:"10px",marginLeft:"6px"}}>ULTRA</span></b>
-        <button style={{background:"white",color:"black",padding:"8px 18px",borderRadius:"20px",fontWeight:900,border:"none"}} onClick={()=>setScreen("form")}>Get Plan</button>
+        <button style={{background:"white",color:"black",padding:"8px 18px",borderRadius:"20px",fontWeight:900,border:"none",cursor:"pointer"}} onClick={()=>setScreen("form")}>Get Plan</button>
       </div>
 
       {screen==="landing" && (
@@ -42,7 +42,7 @@ export default function App(){
             <p style={{color:"#777",marginTop:"14px"}}>AI like ₹5000 trainer + Diet + Grocery + Macros. Used by 12k+ Indians.</p>
             <button style={{...S.btn,marginTop:"20px"}} onClick={()=>setScreen("form")}>Get My AI Plan FREE →</button>
           </div>
-          <img src="https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=600" style={{width:"100%",height:"420px",objectFit:"cover",borderRadius:"24px"}} />
+          <img src="https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=600" style={{width:"100%",height:"420px",objectFit:"cover",borderRadius:"24px"}} alt="gym" />
         </div>
       )}
 
@@ -83,17 +83,21 @@ export default function App(){
             <>
               <h2 style={{fontSize:"26px",fontWeight:900}}>🔥 Your Pro Plan Unlocked</h2>
               
-              {/* WORKOUT CARD */}
-              <div style={S.card}>
-                <b style={{fontSize:"12px",letterSpacing:"1px"}}>💪 WORKOUT - {form.days} DAYS</b>
+              {/* WORKOUT - NOW WHITE CARDS FIXED */}
+              <div style={{...S.card,background:"#facc15",borderRadius:"20px",padding:"18px"}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"12px"}}>
+                  <b style={{fontSize:"13px",letterSpacing:"1px",color:"black"}}>💪 WORKOUT - {form.days} DAYS</b>
+                  <span style={{background:"black",color:"#facc15",fontSize:"10px",padding:"5px 10px",borderRadius:"20px",fontWeight:900}}>{form.goal.toUpperCase()}</span>
+                </div>
                 {(plan.workout||[]).map((w,i)=>(
-                  <label key={i} style={{display:"flex",gap:"10px",background:"#0f0f0f",padding:"14px",borderRadius:"12px",marginTop:"10px",fontSize:"13px",fontWeight:600}}>
-                    <input type="checkbox" /> {w}
+                  <label key={i} style={{display:"flex",gap:"12px",background:"white",color:"black",padding:"14px 16px",borderRadius:"14px",marginTop:"10px",fontSize:"13px",fontWeight:800,lineHeight:1.4,boxShadow:"0 2px 10px rgba(0,0,0,0.12)",cursor:"pointer"}}>
+                    <input type="checkbox" style={{width:"18px",height:"18px",marginTop:"2px"}} />
+                    <span>🏋️ {w}</span>
                   </label>
                 ))}
               </div>
 
-              {/* POLISHED DIET CARD - THIS IS NEW */}
+              {/* DIET - POLISHED CARDS */}
               <div style={{background:"#facc15",borderRadius:"20px",padding:"18px",marginTop:"14px",color:"black"}}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"12px"}}>
                   <b style={{fontSize:"13px",letterSpacing:"1px"}}>🥗 DIET PLAN - {form.type.toUpperCase()}</b>
@@ -107,7 +111,7 @@ export default function App(){
                       <div style={{fontSize:"18px"}}>{icon}</div>
                       <div>
                         <div style={{fontSize:"11px",fontWeight:900,opacity:0.6}}>{line.split("-")[0]}</div>
-                        <div style={{fontSize:"13px",fontWeight:700,marginTop:"2px",lineHeight:1.4}}>{line.split("-").slice(1).join("-").replace(":","").trim()}</div>
+                        <div style={{fontSize:"13px",fontWeight:700,marginTop:"2px",lineHeight:1.4}}>{line.split("-").slice(1).join("-").trim()}</div>
                       </div>
                     </div>
                   )
@@ -115,12 +119,12 @@ export default function App(){
 
                 <div style={{background:"black",color:"white",borderRadius:"14px",padding:"14px",marginTop:"12px"}}>
                   <div style={{fontSize:"11px",fontWeight:900,color:"#facc15"}}>🛒 GROCERY + TIPS</div>
-                  <div style={{fontSize:"12px",marginTop:"6px",lineHeight:1.5,whiteSpace:"pre-wrap"}}>{(plan.diet.split("🛒")[1]||"").slice(0,300)}</div>
+                  <div style={{fontSize:"12px",marginTop:"6px",lineHeight:1.5,whiteSpace:"pre-wrap"}}>{(plan.diet.split("🛒")[1]||"").slice(0,400)}</div>
                 </div>
               </div>
 
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"10px",marginTop:"14px"}}>
-                <button onClick={()=>window.open(`https://wa.me/?text=My FitCoach AI Plan: ${window.location.href}`)} style={{background:"#25D366",color:"white",padding:"14px",borderRadius:"14px",border:"none",fontWeight:900,cursor:"pointer"}}>Share on WhatsApp</button>
+                <button onClick={()=>window.open(`https://wa.me/?text=Check my FitCoach AI Plan: ${window.location.href}`)} style={{background:"#25D366",color:"white",padding:"14px",borderRadius:"14px",border:"none",fontWeight:900,cursor:"pointer"}}>Share on WhatsApp</button>
                 <button onClick={()=>window.print()} style={{background:"white",color:"black",padding:"14px",borderRadius:"14px",border:"none",fontWeight:900,cursor:"pointer"}}>📄 Save PDF</button>
               </div>
               <button onClick={()=>setScreen("form")} style={{background:"none",border:"1px solid #333",color:"#666",padding:"12px",borderRadius:"14px",width:"100%",marginTop:"10px",cursor:"pointer"}}>Create New Plan</button>
