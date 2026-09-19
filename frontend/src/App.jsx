@@ -1,133 +1,152 @@
 import { useState, useRef } from "react"
-import axios from "axios"
-const API = import.meta.env.VITE_API_URL || "https://fitcoach-ai-backend.onrender.com"
 
-// ============ REUSABLE MEDIA COMPONENT - DO NOT HARDCODE ============
-function MediaHero({ id, title, subtitle, desc, buttonText, onAction, defaultImg }){
-  const fileRef = useRef(null)
-  const [media, setMedia] = useState(()=>{
-    const saved = localStorage.getItem(`fitcoach_media_${id}`)
-    if(saved) return JSON.parse(saved)
-    return { type:"image", src: defaultImg }
+function FullScreenMediaHero({ id, kicker, title, desc, btn, defaultMedia, objectPos, onBtn }) {
+  const inputRef = useRef(null)
+  const [pos, setPos] = useState(objectPos || "50% 35%")
+  const [media, setMedia] = useState(() => {
+    try {
+      const s = localStorage.getItem(`fitcoach_fs_${id}`)
+      return s ? JSON.parse(s) : { type: "image", src: defaultMedia }
+    } catch { return { type: "image", src: defaultMedia } }
   })
 
-  const handleUpload = (e)=>{
-    const file = e.target.files[0]; if(!file) return
-    const isVideo = file.type.startsWith("video/")
-    const reader = new FileReader()
-    reader.onload = (ev)=>{
-      const newMedia = { type: isVideo ? "video" : "image", src: ev.target.result }
-      setMedia(newMedia)
-      localStorage.setItem(`fitcoach_media_${id}`, JSON.stringify(newMedia))
+  const upload = (e) => {
+    const f = e.target.files[0]; if (!f) return
+    const isVideo = f.type.startsWith("video/")
+    const r = new FileReader()
+    r.onload = (ev) => {
+      const m = { type: isVideo ? "video" : "image", src: ev.target.result }
+      setMedia(m); localStorage.setItem(`fitcoach_fs_${id}`, JSON.stringify(m))
     }
-    reader.readAsDataURL(file)
+    r.readAsDataURL(f)
   }
 
-  return(
-    <div style={{position:"relative",width:"100%",height:"100vh",minHeight:"650px",overflow:"hidden",background:"#070708"}}>
-      {/* MEDIA - FULL COVER, NO WHITE BOX */}
-      {media.type==="video" ? (
-        <video src={media.src} autoPlay muted loop playsInline style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",objectPosition:"center"}}/>
+  return (
+    <section style={{
+      position:"relative", width:"100vw", minHeight:"100svh", height:"100svh",
+      overflow:"hidden", margin:0, padding:0, background:"#000"
+    }}>
+      {media.type === "video" ? (
+        <video src={media.src} autoPlay muted loop playsInline
+          style={{ position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"cover", objectPosition:pos }} />
       ) : (
-        <img src={media.src} alt={title} style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",objectPosition:"center"}}/>
+        <img src={media.src} alt={title}
+          style={{ position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"cover", objectPosition:pos }} />
       )}
 
-      {/* GRADIENT FOR TEXT READABLE */}
-      <div style={{position:"absolute",inset:0,background:"linear-gradient(90deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.15) 100%), linear-gradient(0deg, rgba(0,0,0,0.6) 0%, transparent 60%)"}}/>
+      {/* CINEMATIC OVERLAY - NOT TOO DARK */}
+      <div style={{
+        position:"absolute", inset:0,
+        background:`linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.15) 55%, rgba(0,0,0,0.35) 100%)`
+      }} />
 
-      {/* CONTENT OVERLAY */}
-      <div style={{position:"relative",zIndex:2,height:"100%",display:"flex",flexDirection:"column",justifyContent:"center",padding:"0 6%",maxWidth:600}}>
-        <p style={{color:"#FFC100",fontSize:11,letterSpacing:2.5,fontWeight:800}}>{subtitle}</p>
-        <h2 style={{color:"#fff",fontSize:"clamp(32px,5vw,56px)",fontWeight:900,lineHeight:0.9,marginTop:12,letterSpacing:-1}}>{title}</h2>
-        <p style={{color:"#c7c7c7",fontSize:14,lineHeight:1.6,marginTop:18,maxWidth:420}}>{desc}</p>
-        <div style={{display:"flex",gap:12,marginTop:26,flexWrap:"wrap"}}>
-          <button onClick={onAction} style={{background:"#fff",color:"#000",padding:"14px 26px",borderRadius:100,border:"none",fontWeight:900,fontSize:13}}>{buttonText} →</button>
-          <button onClick={()=>fileRef.current.click()} style={{background:"rgba(255,255,255,0.1)",backdropFilter:"blur(10px)",color:"#fff",padding:"14px 20px",borderRadius:100,border:"1px solid rgba(255,255,255,0.2)",fontWeight:700,fontSize:12}}>↻ Change Media</button>
+      {/* TEXT - BOTTOM LEFT LIKE PREMIUM FITNESS APP */}
+      <div style={{
+        position:"relative", zIndex:2, height:"100%", width:"100%",
+        display:"flex", flexDirection:"column", justifyContent:"flex-end",
+        padding:"clamp(20px,6vw,80px)", paddingBottom:"clamp(30px,8vh,80px)"
+      }}>
+        <p style={{ color:"#FFC100", fontSize:11, letterSpacing:3, fontWeight:900 }}>{kicker}</p>
+        <h1 style={{
+          color:"#fff", fontWeight:900, fontSize:"clamp(36px,6vw,72px)",
+          lineHeight:0.9, letterSpacing:-2, marginTop:12, whiteSpace:"pre-line"
+        }}>{title}</h1>
+        <p style={{ color:"rgba(255,255,255,0.8)", fontSize:"clamp(13px,1.6vw,15px)", lineHeight:1.6, maxWidth:460, marginTop:16 }}>{desc}</p>
+
+        <div style={{ display:"flex", gap:10, marginTop:28, flexWrap:"wrap", alignItems:"center" }}>
+          <button onClick={onBtn} style={{
+            background:"#fff", color:"#000", border:"none",
+            padding:"16px 28px", borderRadius:100, fontWeight:900, fontSize:13
+          }}>{btn} →</button>
+          <button onClick={() => inputRef.current.click()} style={{
+            background:"rgba(255,255,255,0.12)", backdropFilter:"blur(12px)",
+            color:"#fff", border:"1px solid rgba(255,255,255,0.2)",
+            padding:"14px 18px", borderRadius:100, fontWeight:700, fontSize:11
+          }}>↻ CHANGE MEDIA</button>
+
+          {/* OBJECT-POSITION CONTROL */}
+          <select value={pos} onChange={e=>setPos(e.target.value)} style={{
+            background:"rgba(0,0,0,0.5)", color:"#fff", border:"1px solid rgba(255,255,255,0.2)",
+            padding:"12px 10px", borderRadius:100, fontSize:11
+          }}>
+            <option value="50% 20%">Face Top</option>
+            <option value="50% 35%">Center Top</option>
+            <option value="50% 50%">Center</option>
+            <option value="50% 70%">Lower</option>
+          </select>
         </div>
-        <p style={{color:"#666",fontSize:10,marginTop:10}}>Supports JPG, PNG, WEBP, MP4 - Replaces old media</p>
       </div>
 
-      {/* HIDDEN INPUT - ALWAYS ACTIVE */}
-      <input ref={fileRef} type="file" accept="image/*,video/mp4,video/webm" onChange={handleUpload} style={{display:"none"}}/>
-      
-      {/* TOP BADGE */}
-      <div style={{position:"absolute",top:20,right:20,zIndex:3,background:"rgba(0,0,0,0.6)",backdropFilter:"blur(8px)",color:"#fff",padding:"6px 12px",borderRadius:20,fontSize:10,border:"1px solid rgba(255,255,255,0.15)"}}>
-        {media.type==="video" ? "▶ VIDEO ACTIVE" : "◉ IMAGE ACTIVE"} • {id.toUpperCase()}
-      </div>
-    </div>
+      <input ref={inputRef} type="file" accept="image/*,video/mp4,video/webm" onChange={upload} style={{ display:"none" }} />
+    </section>
   )
 }
 
-export default function App(){
-const [screen,setScreen]=useState("home")
-const [form,setForm]=useState({age:"23",weight:"65",goal:"muscle gain",type:"veg"})
-const [plan,setPlan]=useState(null)
-const [loading,setLoading]=useState(false)
+export default function App() {
+  const [page, setPage] = useState("home")
+  return (
+    <>
+      <style>{`
+        html, body, #root { margin:0 !important; padding:0 !important; width:100% !important; min-height:100% !important; overflow-x:hidden !important; background:#000; }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { -webkit-font-smoothing:antialiased; }
+      `}</style>
 
-const gen=async()=>{setLoading(true); try{const r=await axios.post(`${API}/generate`,form); setPlan(r.data); setScreen("plan")}catch{alert("Backend waking, wait 30s")} setLoading(false)}
+      {/* TRANSPARENT NAVBAR - ON TOP OF HERO, NO GAP */}
+      <nav style={{
+        position:"fixed", top:0, left:0, right:0, zIndex:100,
+        width:"100vw", display:"flex", justifyContent:"space-between", alignItems:"center",
+        padding:"18px 4vw", background:"linear-gradient(to bottom, rgba(0,0,0,0.7), transparent)",
+        backdropFilter:"blur(2px)"
+      }}>
+        <b style={{ color:"#fff", fontSize:14, letterSpacing:1 }}>⩔ FITCOACH.AI</b>
+        <div style={{ display:"flex", gap:24, alignItems:"center", color:"rgba(255,255,255,0.8)", fontSize:11, fontWeight:700 }}>
+          <span className="hide-mobile" style={{ display:"none" }}>Programs</span>
+          <button onClick={() => setPage("home")} style={{ background:"#fff", color:"#000", border:"none", padding:"10px 20px", borderRadius:100, fontWeight:900, fontSize:12 }}>Enroll Now</button>
+        </div>
+      </nav>
 
-return(
-<div style={{margin:0,background:"#fff",fontFamily:"Inter,sans-serif",overflowX:"hidden"}}>
-<style>{`* {margin:0;padding:0;box-sizing:border-box} html,body{overflow-x:hidden} @import url('https://fonts.googleapis.com/css2?family=Inter:wght@700;800;900&display=swap')`}</style>
+      <div style={{ width:"100vw", margin:0, padding:0, overflowX:"hidden" }}>
+        {/* 1 - MY STORY */}
+        <FullScreenMediaHero
+          id="my-story"
+          kicker="FOUNDER • SUNDARGARH, ODISHA"
+          title={"SWAPNIL KUMAR\nPATEL"}
+          desc="From Sundargarh, Odisha. Student builder. Built FITCOACH.AI to make fitness affordable at ₹299. Upload your gym photo here - it will cover full screen edge-to-edge."
+          btn="START YOUR JOURNEY"
+          objectPos="50% 25%"
+          onBtn={() => window.scrollTo({ top: window.innerHeight, behavior:"smooth" })}
+          defaultMedia="https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=1400"
+        />
 
-<div style={{position:"sticky",top:0,zIndex:50,display:"flex",justifyContent:"space-between",padding:"14px 4%",background:"#fff",borderBottom:"1px solid #eee"}}><b>⩔ FITCOACH.AI</b><button onClick={()=>setScreen("form")} style={{background:"#000",color:"#fff",padding:"8px 18px",borderRadius:20,border:"none",fontWeight:800}}>Enroll Now</button></div>
+        {/* 2 - SUCCESS */}
+        <FullScreenMediaHero
+          id="success"
+          kicker="REAL TRANSFORMATIONS"
+          title={"SUCCESS\nSTORIES"}
+          desc="Real people. Real progress. Upload client before/after here. Replaces old media automatically."
+          btn="VIEW STORIES"
+          objectPos="50% 35%"
+          onBtn={() => window.scrollTo({ top: window.innerHeight*2, behavior:"smooth" })}
+          defaultMedia="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1400"
+        />
 
-{screen==="home" && <>
-{/* 1. MY STORY - UPLOAD YOUR PHOTO */}
-<MediaHero 
-  id="my-story"
-  subtitle="FOUNDER • SUNDARGARH, ODISHA"
-  title={`Swapnil Kumar\nPatel`}
-  desc="Student builder from Sundargarh. Built FITCOACH.AI to make fitness affordable at ₹299. Upload your photo here - this is your personal story section."
-  buttonText="Build My Plan"
-  onAction={()=>setScreen("form")}
-  defaultImg="https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=1200"
-/>
+        {/* 3 - WORKOUT */}
+        <FullScreenMediaHero
+          id="workout"
+          kicker="TRAIN WITH PURPOSE"
+          title={"BUILD\nSTRONGER"}
+          desc="Supports MP4 video. Upload workout video - it will autoplay muted loop as full-screen background."
+          btn="START TRAINING"
+          objectPos="50% 40%"
+          onBtn={() => window.scrollTo({ top: window.innerHeight*3, behavior:"smooth" })}
+          defaultMedia="https://images.unsplash.com/photo-1599058917212-d75039770074?w=1400"
+        />
 
-{/* 2. SUCCESS STORIES */}
-<MediaHero 
-  id="success-stories"
-  subtitle="REAL RESULTS"
-  title={`Success\nStories`}
-  desc="Real people. Real progress. Upload client transformations, before/after photos here. Only latest upload will show."
-  buttonText="View Stories"
-  onAction={()=>setScreen("form")}
-  defaultImg="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1200"
-/>
-
-{/* 3. WORKOUT */}
-<MediaHero 
-  id="workout"
-  subtitle="TRAIN WITH PURPOSE"
-  title={`Workout\nPlans`}
-  desc="Build strength. Build discipline. Upload workout videos or gym photos. Supports MP4 video as background with autoplay."
-  buttonText="Start Training"
-  onAction={()=>setScreen("form")}
-  defaultImg="https://images.unsplash.com/photo-1599058917212-d75039770074?w=1200"
-/>
-
-{/* 4. NUTRITION */}
-<MediaHero 
-  id="nutrition"
-  subtitle="INDIAN DIET"
-  title={`Personalised\nNutrition`}
-  desc="Veg & Non-veg Indian meals. Roti, rice, dal, paneer, chicken. Upload diet photos, meal prep images here."
-  buttonText="Get Diet Plan"
-  onAction={()=>setScreen("form")}
-  defaultImg="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=1200"
-/>
-
-{/* FOOTER */}
-<div style={{background:"#000",color:"#fff",textAlign:"center",padding:"50px 5%"}}>
-  <h2 style={{fontWeight:900}}>Fitness Made Simple With FITCOACH.AI</h2>
-  <button onClick={()=>setScreen("form")} style={{marginTop:20,background:"#fff",color:"#000",padding:"12px 26px",borderRadius:30,border:"none",fontWeight:900}}>Get Started ₹299</button>
-  <p style={{color:"#555",fontSize:11,marginTop:20}}>© 2026 FITCOACH.AI • Made in Sundargarh • Each section media is reusable & replaceable</p>
-</div>
-</>}
-
-{screen==="form" && <div style={{maxWidth:420,margin:"40px auto",padding:16}}><button onClick={()=>setScreen("home")} style={{border:"1px solid #ddd",padding:"6px 12px",borderRadius:20,background:"none"}}>← Back</button><h2 style={{marginTop:20,fontWeight:900}}>Build Your Plan</h2><div style={{background:"#f7f7f7",padding:20,borderRadius:16,marginTop:16}}><input value={form.age} onChange={e=>setForm({...form,age:e.target.value})} placeholder="Age" style={{width:"100%",padding:12,borderRadius:8,border:"1px solid #ddd",marginBottom:10}}/><input value={form.weight} onChange={e=>setForm({...form,weight:e.target.value})} placeholder="Weight" style={{width:"100%",padding:12,borderRadius:8,border:"1px solid #ddd"}}/><button onClick={gen} style={{width:"100%",marginTop:14,padding:14,background:"#000",color:"#fff",borderRadius:10,fontWeight:800}}>{loading?"Creating...":"Continue →"}</button></div></div>}
-
-{screen==="plan" && plan && <div style={{maxWidth:600,margin:"20px auto",padding:16}}><pre style={{background:"#111",color:"#fff",padding:12,whiteSpace:"pre-wrap",fontSize:12,borderRadius:12}}>{JSON.stringify(plan,null,2).slice(0,5000)}</pre></div>}
-</div>
-)
+        <div style={{ width:"100vw", background:"#000", color:"#fff", textAlign:"center", padding:"40px 5vw", fontSize:11, color:"#666" }}>
+          © 2026 FITCOACH.AI • 100vw Edge-to-Edge • No Gaps • Made in Sundargarh
+        </div>
+      </div>
+    </>
+  )
 }
