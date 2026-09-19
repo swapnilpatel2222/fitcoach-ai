@@ -7,7 +7,7 @@ export default function App(){
   const [form,setForm]=useState({age:"23",weight:"65",goal:"muscle gain",days:5,type:"veg"});
   const [plan,setPlan]=useState(null);
   const [loading,setLoading]=useState(false);
-  const [paid,setPaid]=useState(false);
+  const [showExample,setShowExample]=useState(false);
 
   const generate=async()=>{
     if(!form.age||!form.weight) return alert("Enter age & weight");
@@ -15,138 +15,88 @@ export default function App(){
     try{
       const res=await axios.post(`${API_URL}/generate`,form);
       setPlan(res.data); setScreen("plan");
-    }catch{ alert("Backend waking... wait 20 sec"); }
+    }catch{ alert("Backend waking... wait 20 sec then try again"); }
     setLoading(false);
   }
 
-  const S = {
-    page:{minHeight:"100vh",background:"#fafafa",color:"#111",fontFamily:"'Inter', system-ui, -apple-system"},
-    nav:{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"20px 24px",maxWidth:"1100px",margin:"0 auto",background:"white",borderBottom:"1px solid #eaeaea",position:"sticky",top:0,zIndex:10},
-    btnPrimary:{background:"#111",color:"white",padding:"14px 24px",borderRadius:"12px",fontWeight:600,fontSize:"14px",border:"none",cursor:"pointer"},
-    btnSec:{background:"white",color:"#111",padding:"14px 24px",borderRadius:"12px",fontWeight:600,fontSize:"14px",border:"1px solid #e5e5e5",cursor:"pointer"},
-    card:{background:"white",border:"1px solid #eaeaea",borderRadius:"16px",padding:"24px"},
-    label:{fontSize:"11px",fontWeight:700,letterSpacing:"0.8px",color:"#888",marginBottom:"8px",display:"block"},
-  };
-
-  const dietLines = (plan?.diet||"").split("\n").filter(l=>l.includes("AM")||l.includes("PM"));
-
   return (
-    <div style={S.page}>
-      <div style={S.nav}>
-        <div style={{display:"flex",alignItems:"center",gap:"10px"}}>
-          <div style={{width:"28px",height:"28px",background:"#111",borderRadius:"8px",display:"flex",alignItems:"center",justifyContent:"center",color:"white",fontWeight:900,fontSize:"12px"}}>F</div>
-          <b style={{fontSize:"16px",letterSpacing:"-0.3px"}}>FitCoach<span style={{fontWeight:400,color:"#888"}}>.ai</span></b>
-        </div>
-        <button style={S.btnSec} onClick={()=>setScreen("form")}>Get Started</button>
+    <div style={{minHeight:"100vh",background:"#ffffff",color:"#111",fontFamily:"Inter, system-ui, sans-serif"}}>
+      <style>{`@media(max-width:800px){.hero{grid-template-columns:1fr!important} input{font-size:16px!important}}`}</style>
+      
+      {/* NAV */}
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"16px 20px",maxWidth:"1100px",margin:"0 auto",borderBottom:"1px solid #eee",position:"sticky",top:0,background:"white",zIndex:20}}>
+        <div style={{display:"flex",alignItems:"center",gap:"8px"}}><div style={{width:26,height:26,background:"#111",borderRadius:7,color:"white",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:900,fontSize:12}}>F</div><b>FitCoach.ai</b></div>
+        <button onClick={()=>setScreen("form")} style={{background:"#111",color:"white",padding:"10px 18px",borderRadius:10,border:"none",fontWeight:600,cursor:"pointer"}}>Get Started</button>
       </div>
 
+      {/* LANDING */}
       {screen==="landing" && (
-        <div style={{maxWidth:"1100px",margin:"0 auto",padding:"60px 24px",display:"grid",gridTemplateColumns:"1.1fr 0.9fr",gap:"60px",alignItems:"center"}}>
+        <div className="hero" style={{maxWidth:"1100px",margin:"0 auto",padding:"40px 20px",display:"grid",gridTemplateColumns:"1.1fr 0.9fr",gap:32}}>
           <div>
-            <div style={{display:"inline-block",background:"white",border:"1px solid #eaeaea",padding:"6px 12px",borderRadius:"20px",fontSize:"11px",fontWeight:600,color:"#555",marginBottom:"20px"}}>● Trusted by 12,000+ Indians</div>
-            <h1 style={{fontSize:"48px",fontWeight:700,lineHeight:1.05,letterSpacing:"-1.5px"}}>Personalized fitness,<br/>designed by AI.</h1>
-            <p style={{color:"#666",marginTop:"18px",fontSize:"17px",lineHeight:1.6}}>Workout and nutrition plans tailored to your body, goal and lifestyle. No ads. No noise. Just results.</p>
-            <div style={{display:"flex",gap:"12px",marginTop:"28px"}}>
-              <button style={S.btnPrimary} onClick={()=>setScreen("form")}>Generate Your Plan →</button>
-              <button style={S.btnSec}>See Example</button>
+            <div style={{display:"inline-block",border:"1px solid #e5e5e5",padding:"6px 12px",borderRadius:20,fontSize:11,fontWeight:600,marginBottom:16}}>● Trusted by 12,000+ Indians</div>
+            <h1 style={{fontSize:"clamp(32px,5vw,48px)",fontWeight:800,lineHeight:1.05,letterSpacing:"-1.2px",margin:0}}>Personalized fitness,<br/>designed by AI.</h1>
+            <p style={{color:"#666",marginTop:16,fontSize:16,lineHeight:1.6}}>Workout and nutrition plans tailored to your body, goal and lifestyle. No ads. Just results.</p>
+            <div style={{display:"flex",gap:10,marginTop:24,flexWrap:"wrap"}}>
+              <button onClick={()=>setScreen("form")} style={{background:"#111",color:"white",padding:"14px 22px",borderRadius:12,border:"none",fontWeight:700,cursor:"pointer"}}>Generate Your Plan →</button>
+              <button onClick={()=>setShowExample(true)} style={{background:"white",color:"#111",padding:"14px 22px",borderRadius:12,border:"1px solid #ddd",fontWeight:600,cursor:"pointer"}}>See Example</button>
             </div>
-            <div style={{display:"flex",gap:"24px",marginTop:"40px"}}>
-              <div><b style={{fontSize:"18px"}}>5,000+</b><div style={{fontSize:"12px",color:"#888"}}>Exercises</div></div>
-              <div><b style={{fontSize:"18px"}}>3,000+</b><div style={{fontSize:"12px",color:"#888"}}>Meal Plans</div></div>
-              <div><b style={{fontSize:"18px"}}>4.9/5</b><div style={{fontSize:"12px",color:"#888"}}>Rating</div></div>
-            </div>
+            {showExample && (
+              <div style={{marginTop:20,background:"#fafafa",border:"1px solid #eee",borderRadius:14,padding:16}}>
+                <b style={{fontSize:13}}>EXAMPLE PLAN:</b><div style={{fontSize:12,color:"#666",marginTop:6,lineHeight:1.5}}>Day 1: Chest 4x12, Triceps 3x15<br/>Day 2: Back 4x12, Biceps 3x12<br/>Diet: 2200 KCAL, 140g Protein (Veg)</div>
+                <button onClick={()=>setShowExample(false)} style={{marginTop:10,fontSize:12,border:"none",background:"none",textDecoration:"underline",cursor:"pointer"}}>Close</button>
+              </div>
+            )}
           </div>
-          <div style={S.card}>
-            <img src="https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=600" style={{width:"100%",height:"280px",objectFit:"cover",borderRadius:"12px"}} alt="gym" />
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"12px",marginTop:"16px"}}>
-              <div style={{background:"#f6f6f6",padding:"14px",borderRadius:"12px"}}><div style={{fontSize:"11px",color:"#888"}}>WORKOUT</div><b style={{fontSize:"13px"}}>5 Day Split • Muscle Gain</b></div>
-              <div style={{background:"#f6f6f6",padding:"14px",borderRadius:"12px"}}><div style={{fontSize:"11px",color:"#888"}}>NUTRITION</div><b style={{fontSize:"13px"}}>2,275 KCAL • 143g Protein</b></div>
+          <div style={{background:"white",border:"1px solid #eee",borderRadius:16,padding:12}}>
+            <img src="https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=600" style={{width:"100%",height:280,objectFit:"cover",borderRadius:12}} />
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginTop:12}}>
+              <div style={{background:"#f6f6f6",padding:12,borderRadius:10}}><div style={{fontSize:10,color:"#888"}}>WORKOUT</div><b style={{fontSize:12}}>5 Day • Muscle Gain</b></div>
+              <div style={{background:"#f6f6f6",padding:12,borderRadius:10}}><div style={{fontSize:10,color:"#888"}}>NUTRITION</div><b style={{fontSize:12}}>2,275 KCAL • 143g P</b></div>
             </div>
           </div>
         </div>
       )}
 
+      {/* FORM - FIXED VISIBILITY */}
       {screen==="form" && (
-        <div style={{maxWidth:"440px",margin:"0 auto",padding:"40px 20px"}}>
-          <button onClick={()=>setScreen("landing")} style={{background:"none",border:"none",color:"#888",cursor:"pointer",fontSize:"13px",marginBottom:"16px"}}>← Back</button>
-          <h2 style={{fontSize:"28px",fontWeight:700,letterSpacing:"-0.8px"}}>Let's build your plan.</h2>
-          <p style={{color:"#888",fontSize:"14px",marginTop:"6px"}}>Takes 15 seconds. No signup required.</p>
-          <div style={{...S.card,marginTop:"24px"}}>
-            <label style={S.label}>BASIC INFO</label>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"10px"}}>
-              <input placeholder="Age" value={form.age} onChange={e=>setForm({...form,age:e.target.value})} style={{padding:"14px",borderRadius:"10px",background:"#fafafa",border:"1px solid #eaeaea",width:"100%",boxSizing:"border-box"}} />
-              <input placeholder="Weight (kg)" value={form.weight} onChange={e=>setForm({...form,weight:e.target.value})} style={{padding:"14px",borderRadius:"10px",background:"#fafafa",border:"1px solid #eaeaea",width:"100%",boxSizing:"border-box"}} />
+        <div style={{maxWidth:440,margin:"0 auto",padding:"30px 16px"}}>
+          <button onClick={()=>setScreen("landing")} style={{background:"none",border:"none",color:"#666",cursor:"pointer",fontSize:13,marginBottom:12}}>← Back</button>
+          <h2 style={{fontSize:26,fontWeight:800,margin:0}}>Let's build your plan</h2>
+          <p style={{color:"#888",fontSize:13,marginTop:4}}>Takes 15 seconds. No signup.</p>
+          
+          <div style={{background:"white",border:"2px solid #111",borderRadius:16,padding:20,marginTop:20}}>
+            <label style={{fontSize:11,fontWeight:800,color:"#111",letterSpacing:1}}>BASIC INFO</label>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginTop:10}}>
+              <input placeholder="Age (e.g. 23)" value={form.age} onChange={e=>setForm({...form,age:e.target.value})} style={{padding:14,borderRadius:10,background:"white",border:"2px solid #ddd",color:"#111",fontWeight:600,outline:"none"}} />
+              <input placeholder="Weight kg (65)" value={form.weight} onChange={e=>setForm({...form,weight:e.target.value})} style={{padding:14,borderRadius:10,background:"white",border:"2px solid #ddd",color:"#111",fontWeight:600,outline:"none"}} />
             </div>
 
-            <label style={{...S.label,marginTop:"20px"}}>GOAL</label>
-            <div style={{display:"flex",gap:"8px"}}>
-              {["muscle gain","fat loss","strength"].map(g=><button key={g} onClick={()=>setForm({...form,goal:g})} style={{flex:1,padding:"11px",borderRadius:"10px",border:"1px solid #eaeaea",background:form.goal===g?"#111":"white",color:form.goal===g?"white":"#111",fontWeight:500,fontSize:"12px",cursor:"pointer"}}>{g}</button>)}
+            <label style={{fontSize:11,fontWeight:800,color:"#111",letterSpacing:1,marginTop:20,display:"block"}}>GOAL</label>
+            <div style={{display:"flex",gap:8,marginTop:8}}>
+              {["muscle gain","fat loss","strength"].map(g=><button key={g} onClick={()=>setForm({...form,goal:g})} style={{flex:1,padding:12,borderRadius:10,border:"2px solid #111",background:form.goal===g?"#111":"white",color:form.goal===g?"white":"#111",fontWeight:600,fontSize:11,cursor:"pointer"}}>{g}</button>)}
             </div>
 
-            <label style={{...S.label,marginTop:"20px"}}>DIET PREFERENCE</label>
-            <div style={{display:"flex",gap:"8px"}}>
-              {["veg","non-veg"].map(t=><button key={t} onClick={()=>setForm({...form,type:t})} style={{flex:1,padding:"11px",borderRadius:"10px",border:"1px solid #eaeaea",background:form.type===t?"#111":"white",color:form.type===t?"white":"#111",fontWeight:500,fontSize:"12px",cursor:"pointer"}}>{t}</button>)}
+            <label style={{fontSize:11,fontWeight:800,color:"#111",letterSpacing:1,marginTop:20,display:"block"}}>DIET</label>
+            <div style={{display:"flex",gap:8,marginTop:8}}>
+              {["veg","non-veg"].map(t=><button key={t} onClick={()=>setForm({...form,type:t})} style={{flex:1,padding:12,borderRadius:10,border:"2px solid #111",background:form.type===t?"#111":"white",color:form.type===t?"white":"#111",fontWeight:600,fontSize:12,cursor:"pointer"}}>{t}</button>)}
             </div>
 
-            <label style={{...S.label,marginTop:"20px"}}>WORKOUT DAYS</label>
-            <div style={{display:"flex",gap:"8px"}}>
-              {[3,4,5,6].map(d=><button key={d} onClick={()=>setForm({...form,days:d})} style={{flex:1,padding:"12px",borderRadius:"10px",border:"1px solid #eaeaea",background:form.days===d?"#111":"white",color:form.days===d?"white":"#111",fontWeight:600,cursor:"pointer"}}>{d}</button>)}
+            <label style={{fontSize:11,fontWeight:800,color:"#111",letterSpacing:1,marginTop:20,display:"block"}}>DAYS</label>
+            <div style={{display:"flex",gap:8,marginTop:8}}>
+              {[3,4,5,6].map(d=><button key={d} onClick={()=>setForm({...form,days:d})} style={{flex:1,padding:12,borderRadius:10,border:"2px solid #111",background:form.days===d?"#111":"white",color:form.days===d?"white":"#111",fontWeight:700,cursor:"pointer"}}>{d}</button>)}
             </div>
 
-            <button onClick={generate} style={{...S.btnPrimary,width:"100%",marginTop:"24px",padding:"16px"}}>{loading?"Generating...":"Continue →"}</button>
-            <div style={{textAlign:"center",fontSize:"11px",color:"#aaa",marginTop:"10px"}}>Secure • Private • No spam</div>
+            <button onClick={generate} style={{background:"#111",color:"white",width:"100%",marginTop:24,padding:16,borderRadius:12,fontWeight:800,border:"none",cursor:"pointer"}}>{loading?"Generating... Please wait":"Continue →"}</button>
           </div>
         </div>
       )}
 
+      {/* PLAN */}
       {screen==="plan" && plan && (
-        <div style={{maxWidth:"640px",margin:"0 auto",padding:"32px 20px"}}>
-          {!paid ? (
-            <div style={{...S.card,textAlign:"center",padding:"48px 24px"}}>
-              <div style={{width:"48px",height:"48px",background:"#f6f6f6",borderRadius:"12px",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto",fontSize:"20px"}}>✓</div>
-              <h2 style={{fontSize:"22px",fontWeight:700,marginTop:"16px",letterSpacing:"-0.5px"}}>Your plan is ready</h2>
-              <p style={{color:"#888",fontSize:"14px",marginTop:"8px"}}>Unlock to view workout, diet and grocery list.</p>
-              <button onClick={()=>setPaid(true)} style={{...S.btnPrimary,width:"100%",marginTop:"20px",padding:"16px"}}>Unlock for ₹299</button>
-              <button onClick={()=>setPaid(true)} style={{background:"none",border:"none",color:"#888",fontSize:"12px",textDecoration:"underline",marginTop:"12px",cursor:"pointer"}}>Demo preview</button>
-            </div>
-          ):(
-            <>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                <h2 style={{fontSize:"20px",fontWeight:700}}>Your Plan</h2>
-                <span style={{fontSize:"11px",background:"#111",color:"white",padding:"5px 10px",borderRadius:"20px"}}>{form.days} DAY • {form.goal.toUpperCase()}</span>
-              </div>
-              
-              <div style={{...S.card,marginTop:"16px"}}>
-                <label style={S.label}>WORKOUT</label>
-                {(plan.workout||[]).map((w,i)=>(
-                  <div key={i} style={{display:"flex",gap:"12px",padding:"14px",borderBottom:i<(plan.workout.length-1)?"1px solid #f0f0f0":"none",fontSize:"13px",fontWeight:500}}>
-                    <input type="checkbox" />
-                    <span>{w}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div style={{...S.card,marginTop:"16px"}}>
-                <label style={S.label}>NUTRITION • {plan.diet.match(/\d+ KCAL/)?.[0]} • {plan.diet.match(/\d+g PROTEIN/)?.[0]}</label>
-                {dietLines.map((line,idx)=>(
-                  <div key={idx} style={{display:"flex",gap:"12px",padding:"12px 0",borderBottom:idx<dietLines.length-1?"1px solid #f0f0f0":"none"}}>
-                    <div style={{fontSize:"11px",fontWeight:700,color:"#888",minWidth:"66px"}}>{line.split("-")[0]}</div>
-                    <div style={{fontSize:"13px",lineHeight:1.5}}>{line.split("-").slice(1).join("-").trim()}</div>
-                  </div>
-                ))}
-              </div>
-
-              <div style={{...S.card,marginTop:"16px",background:"#111",color:"white",borderColor:"#111"}}>
-                <label style={{...S.label,color:"#888"}}>GROCERY & SUPPLEMENTS</label>
-                <div style={{fontSize:"13px",lineHeight:1.6,color:"#bbb",whiteSpace:"pre-wrap"}}>{(plan.diet.split("🛒")[1]||"Grocery list will appear here...").slice(0,500)}</div>
-              </div>
-
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"10px",marginTop:"16px"}}>
-                <button onClick={()=>window.print()} style={S.btnSec}>Download PDF</button>
-                <button onClick={()=>window.open(`https://wa.me/?text=My FitCoach plan: ${window.location.href}`)} style={S.btnPrimary}>Share</button>
-              </div>
-            </>
-          )}
+        <div style={{maxWidth:600,margin:"0 auto",padding:"20px 16px"}}>
+          <h2 style={{fontSize:20,fontWeight:800}}>Your Plan Ready ✅</h2>
+          <div style={{background:"white",border:"1px solid #eee",borderRadius:14,padding:16,marginTop:12,whiteSpace:"pre-wrap",fontSize:13,lineHeight:1.6}}>{JSON.stringify(plan,null,2).slice(0,2000)}</div>
+          <button onClick={()=>setScreen("landing")} style={{marginTop:12,background:"white",border:"1px solid #ddd",padding:"10px 16px",borderRadius:10,cursor:"pointer"}}>← Home</button>
         </div>
       )}
     </div>
